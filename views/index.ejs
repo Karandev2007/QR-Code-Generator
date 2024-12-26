@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QR Code Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563eb',
+            dark: '#1a202c',
+          },
+        },
+      },
+    };
+  </script>
+</head>
+<body class="bg-gray-900 text-white">
+  <div class="min-h-screen flex flex-col lg:flex-row items-center lg:items-start justify-between px-4 lg:px-16 py-8 gap-8">
+    <!-- left section: options and form -->
+    <div class="w-full lg:w-1/2">
+      <h1 class="text-3xl font-bold mb-6">QR Code Generator</h1>
+
+      <!-- button section -->
+      <div id="buttonSection" class="flex flex-wrap gap-4 mb-6">
+        <button
+          onclick="setType('whatsapp')"
+          class="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition"
+        >
+          <img src="https://static-00.iconduck.com/assets.00/whatsapp-icon-1977x2048-6lcnmyml.png" alt="Logo" class="w-6 h-6 mr-2" /> WhatsApp
+        </button>
+        <button
+          onclick="setType('phone')"
+          class="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition"
+        >
+          <img src="https://cdn-icons-png.flaticon.com/256/10309/10309086.png" alt="Logo" class="w-6 h-6 mr-2" /> Phone
+        </button>
+        <button
+          onclick="setType('paypal')"
+          class="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition"
+        >
+          <img src="https://cdn4.iconfinder.com/data/icons/logos-and-brands/512/250_Paypal_logo-512.png" alt="Logo" class="w-6 h-6 mr-2" /> PayPal
+        </button>
+        <button
+          onclick="setType('url')"
+          class="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition"
+        >
+          <img src="https://cdn-icons-png.freepik.com/256/2499/2499303.png?semt=ais_hybrid" alt="Logo" class="w-6 h-6 mr-2" /> URL
+        </button>
+        <button
+          onclick="setType('email')"
+          class="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition"
+        >
+          <img src="https://cdn-icons-png.freepik.com/256/2164/2164894.png?semt=ais_hybrid" alt="Logo" class="w-6 h-6 mr-2" /> Email
+        </button>
+        <button
+          onclick="setType('wifi')"
+          class="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition"
+        >
+          <img src="https://cdn3d.iconscout.com/3d/premium/thumb/wifi-3d-illustration-download-in-png-blend-fbx-gltf-file-formats--logo-internet-wireless-network-interface-with-tile-pack-user-illustrations-3543866.png" alt="Logo" class="w-6 h-6 mr-2" /> WiFi
+        </button>
+      </div>
+
+      <!-- input section -->
+      <form id="qrForm" class="w-full bg-gray-800 p-6 rounded-lg shadow-lg">
+        <input type="hidden" id="type" name="type" value="whatsapp" />
+        <div id="inputFields">
+          <!-- default whatsapp input -->
+          <label class="block text-sm font-medium mb-2" id="formLabel">WhatsApp Number</label>
+          <input
+            type="text"
+            name="input"
+            id="numberInput"
+            placeholder="Enter WhatsApp number"
+            required
+            class="w-full bg-gray-700 px-4 py-2 rounded-lg focus:ring-2 focus:ring-primary text-white"
+            onkeypress="validateNumber(event)"
+          />
+        </div>
+        <button
+          type="submit"
+          class="w-full bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition mt-4"
+        >
+          Generate QR Code
+        </button>
+        <button
+          type="button"
+          id="resetBtn"
+          class="w-full bg-gray-600 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-lg transition mt-4"
+          onclick="resetForm()"
+        >
+          Create New
+        </button>
+      </form>
+    </div>
+
+    <!-- right section: qr code display -->
+    <div id="qrResult" class="w-full lg:w-1/2 bg-gray-800 p-6 rounded-lg shadow-lg hidden flex-col items-center justify-center">
+      <p class="text-lg font-medium mb-4 text-center">Your QR Code:</p>
+      <img
+        id="qrImage"
+        src=""
+        alt="QR Code"
+        class="rounded-lg shadow-lg mx-auto"
+        style="width: 200px; height: 200px;"
+      />
+      <!-- dropdown for download -->
+      <div class="relative mt-4 inline-block">
+        <button
+          class="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition inline-flex items-center"
+        >
+          Download
+          <svg class="w-4 h-4 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        <ul
+          id="downloadDropdown"
+          class="absolute hidden bg-gray-700 text-white py-2 rounded-lg shadow-lg"
+        >
+          <li>
+            <a
+              id="downloadPng"
+              href="#"
+              download="qrcode.png"
+              class="block px-4 py-2 hover:bg-gray-600"
+            >PNG</a>
+          </li>
+          <li>
+            <a
+              id="downloadSvg"
+              href="#"
+              download="qrcode.svg"
+              class="block px-4 py-2 hover:bg-gray-600"
+            >SVG</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- alert -->
+  <div id="alert" class="hidden fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg">
+    Action completed successfully!
+  </div>
+
+  <footer class="w-full bg-gray-900 py-4 text-center text-gray-400 mt-auto">
+    Made with ❤️ by <a href="https://github.com/Karandev2007" target="_blank" class="text-primary">Karandev2007</a>
+    <br>
+    Source Code on <a href="https://github.com/Karandev2007/QR-Code-Generator" target="_blank" class="text-primary">Github</a>
+  </footer>
+
+  <script>
+    const form = document.getElementById('qrForm');
+    const qrResult = document.getElementById('qrResult');
+    const qrImage = document.getElementById('qrImage');
+    const downloadPng = document.getElementById('downloadPng');
+    const downloadSvg = document.getElementById('downloadSvg');
+    const alertBox = document.getElementById('alert');
+    const inputFields = document.getElementById('inputFields');
+    const typeInput = document.getElementById('type');
+    const formLabel = document.getElementById('formLabel');
+    const downloadDropdown = document.getElementById('downloadDropdown');
+
+    let currentType = 'whatsapp'; // default type
+
+    function setType(type) {
+      currentType = type;
+      typeInput.value = type;
+
+      // update label and placeholder based on type
+      inputFields.innerHTML = '';
+      switch (type) {
+        case 'whatsapp':
+          formLabel.textContent = 'WhatsApp Number';
+          inputFields.innerHTML = `<input type="text" name="input" id="numberInput" placeholder="Enter WhatsApp number" required class="w-full bg-gray-700 px-4 py-2 rounded-lg focus:ring-2 focus:ring-primary text-white" onkeypress="validateNumber(event)" />`;
+          break;
+        case 'phone':
+          formLabel.textContent = 'Phone Number';
+          inputFields.innerHTML = `<input type="text" name="input" id="numberInput" placeholder="Enter phone number" required class="w-full bg-gray-700 px-4 py-2 rounded-lg focus:ring-2 focus:ring-primary text-white" onkeypress="validateNumber(event)" />`;
+          break;
+        case 'paypal':
+          formLabel.textContent = 'PayPal Username';
+          inputFields.innerHTML = `<input type="text" name="input" placeholder="Enter PayPal username" required class="w-full bg-gray-700 px-4 py-2 rounded-lg focus:ring-2 focus:ring-primary text-white" />`;
+          break;
+        case 'url':
+          formLabel.textContent = 'URL';
+          inputFields.innerHTML = `<input type="url" name="input" placeholder="Enter a valid URL" required class="w-full bg-gray-700 px-4 py-2 rounded-lg focus:ring-2 focus:ring-primary text-white" />`;
+          break;
+        case 'email':
+          formLabel.textContent = 'Email Address';
+          inputFields.innerHTML = `<input type="email" name="input" placeholder="Enter a valid email" required class="w-full bg-gray-700 px-4 py-2 rounded-lg focus:ring-2 focus:ring-primary text-white" />`;
+          break;
+        case 'wifi':
+          formLabel.textContent = 'WiFi Credentials';
+          inputFields.innerHTML = `
+            <label class="block text-sm font-medium mb-2">WiFi SSID</label>
+            <input type="text" name="ssid" placeholder="Enter SSID" required class="w-full bg-gray-700 px-4 py-2 rounded-lg focus:ring-2 focus:ring-primary text-white" />
+            <label class="block text-sm font-medium mb-2">Password</label>
+            <input type="password" name="password" placeholder="Enter WiFi password" class="w-full bg-gray-700 px-4 py-2 rounded-lg focus:ring-2 focus:ring-primary text-white" />
+            <label class="block text-sm font-medium mb-2">Encryption Type</label>
+            <select name="encryption" class="w-full bg-gray-700 px-4 py-2 rounded-lg focus:ring-2 focus:ring-primary text-white">
+              <option value="WPA">WPA</option>
+              <option value="WEP">WEP</option>
+              <option value="">None</option>
+            </select>`;
+          break;
+      }
+    }
+
+    function validateNumber(event) {
+      const key = event.key;
+      if (!/[0-9]/.test(key)) {
+        event.preventDefault();
+      }
+    }
+
+    function showAlert(message, bgColor = 'bg-green-500') {
+      alertBox.textContent = message;
+      alertBox.className = `fixed bottom-4 right-4 px-4 py-2 rounded-lg shadow-lg text-white ${bgColor}`;
+      alertBox.classList.remove('hidden');
+      setTimeout(() => alertBox.classList.add('hidden'), 3000);
+    }
+
+    function resetForm() {
+      form.reset();
+      qrResult.classList.add('hidden');
+      inputFields.innerHTML = `<label class="block text-sm font-medium mb-2">WhatsApp Number</label>
+        <input type="text" name="input" id="numberInput" placeholder="Enter WhatsApp number" required class="w-full bg-gray-700 px-4 py-2 rounded-lg focus:ring-2 focus:ring-primary text-white" onkeypress="validateNumber(event)" />`;
+      showAlert('Form Reset!');
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const response = await fetch('/generate', {
+        method: 'POST',
+        body: JSON.stringify(Object.fromEntries(formData)),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        qrImage.src = result.qrCode;
+        downloadPng.href = result.qrCode;
+        downloadSvg.href = result.qrCode.replace('data:image/png;base64', 'data:image/svg+xml;base64');
+        qrResult.classList.remove('hidden');
+        showAlert('QR Code Generated!');
+      } else {
+        showAlert('Error generating QR Code', 'bg-red-500');
+      }
+    });
+
+    downloadPng.addEventListener('click', () => {
+      showAlert('PNG Downloaded!');
+    });
+
+    downloadSvg.addEventListener('click', () => {
+      showAlert('SVG Downloaded!');
+    });
+
+    // dropdown for download
+    document.querySelector('.inline-flex').addEventListener('click', () => {
+      downloadDropdown.classList.toggle('hidden');
+    });
+  </script>
+</body>
+</html>

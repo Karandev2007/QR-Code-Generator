@@ -1,0 +1,17 @@
+{
+  "name": "qr-code-generator",
+  "version": "1.2.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "Karandev2007",
+  "license": "ISC",
+  "description": "Modern QR Code Generator with multiple types: URL, WhatsApp, Phone, PayPal, WiFi, and more. Generate and download QR codes in PNG or SVG formats",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "qrcode": "^1.5.4"
+  }
+}
